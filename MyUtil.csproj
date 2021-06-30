@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C9577DA3-8843-4923-BAE1-FBEF5A8894D7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MyUtil</RootNamespace>
+    <AssemblyName>MyUtil</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DnsClient, Version=1.4.0.0, Culture=neutral, PublicKeyToken=4574bb5573c51424, processorArchitecture=MSIL">
+      <HintPath>packages\DnsClient.1.4.0\lib\net471\DnsClient.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Calulation\Calculation.cs" />
+    <Compile Include="Calulation\NumberFormater.cs" />
+    <Compile Include="Dll\DllInvokeTool.cs" />
+    <Compile Include="Extensions\BaseType\IEnum.cs" />
+    <Compile Include="Extensions\BaseType\IPAddressExtensions.cs" />
+    <Compile Include="FileOperate\DirFileHelper.cs" />
+    <Compile Include="FileOperate\ExtensionAttach.cs" />
+    <Compile Include="FileOperate\INIFile.cs" />
+    <Compile Include="Hardware\Method_1\CpuInfo.cs" />
+    <Compile Include="Hardware\Method_1\CPU_INFO.cs" />
+    <Compile Include="Hardware\Method_1\DiskData.cs" />
+    <Compile Include="Hardware\Method_1\DiskInfo.cs" />
+    <Compile Include="Hardware\Method_1\MemoryInfo.cs" />
+    <Compile Include="Hardware\Method_1\NetData.cs" />
+    <Compile Include="Hardware\Method_1\RamInfo.cs" />
+    <Compile Include="Hardware\Method_1\SystemInfo.cs" />
+    <Compile Include="Hardware\Method_1\SystemtimeInfo.cs" />
+    <Compile Include="Hardware\Method_1\Unit.cs" />
+    <Compile Include="Hardware\Method_2\ComputerInfoTool.cs" />
+    <Compile Include="Hardware\Method_2\ComputerStatusTool.cs" />
+    <Compile Include="Hardware\Method_2\ComputerType.cs" />
+    <Compile Include="Hardware\Method_2\ComputerTypeTool.cs" />
+    <Compile Include="Hardware\Method_2\DriveTool.cs" />
+    <Compile Include="Hardware\Method_2\NetcardInfoTool.cs" />
+    <Compile Include="Hardware\Method_2\OSInfoTool.cs" />
+    <Compile Include="Hardware\Method_2\OSName.cs" />
+    <Compile Include="Hardware\Method_2\PatchInfoTool.cs" />
+    <Compile Include="Hardware\Method_2\SoftwareInfo.cs" />
+    <Compile Include="Hardware\Method_2\SoftwareTool.cs" />
+    <Compile Include="Logging\LogInfo.cs" />
+    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Logging\LogManager.cs" />
+    <Compile Include="Memory\ASM.cs" />
+    <Compile Include="Memory\CheatTools.cs" />
+    <Compile Include="Memory\WinAPI\MyProcess.cs" />
+    <Compile Include="Memory\WinAPI\WinAPI.cs" />
+    <Compile Include="Net\HttpHelper.cs" />
+    <Compile Include="Json\JsonHelper.cs" />
+    <Compile Include="Net\Wlan\WlanTool.cs" />
+    <Compile Include="Net\Wlan\WlanClient.cs" />
+    <Compile Include="Net\Wlan\Wlan.cs" />
+    <Compile Include="Other\Email.cs" />
+    <Compile Include="Other\EmailAddress.cs" />
+    <Compile Include="Other\HiPerfTimer.cs" />
+    <Compile Include="Other\MySecurity.cs" />
+    <Compile Include="Other\RegexHelper.cs" />
+    <Compile Include="Other\RegisterTool.cs" />
+    <Compile Include="Other\TaskSupport.cs" />
+    <Compile Include="Other\Tools.cs" />
+    <Compile Include="Other\Translator.cs" />
+    <Compile Include="PE\PEInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
