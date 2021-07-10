@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace MyUtil
 {
     
-    public static class EnumExtensions
+    public static class IEnumExtensions
     {
         /// <summary>
         /// 获取特性 (DisplayAttribute) 的名称；如果未使用该特性，则返回枚举的名称。

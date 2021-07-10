@@ -58,9 +58,13 @@
   <ItemGroup>
     <Compile Include="Calulation\Calculation.cs" />
     <Compile Include="Calulation\NumberFormater.cs" />
+    <Compile Include="DateTimeExt\DateTimeHelper.cs" />
     <Compile Include="Dll\DllInvokeTool.cs" />
-    <Compile Include="Extensions\BaseType\IEnum.cs" />
+    <Compile Include="Extensions\BaseType\IDictionaryExtensions.cs" />
+    <Compile Include="Extensions\BaseType\IEnumExtensions.cs" />
+    <Compile Include="Extensions\BaseType\IListExtensions.cs" />
     <Compile Include="Extensions\BaseType\IPAddressExtensions.cs" />
+    <Compile Include="Extensions\BaseType\IStringExtensions.cs" />
     <Compile Include="FileOperate\DirFileHelper.cs" />
     <Compile Include="FileOperate\ExtensionAttach.cs" />
     <Compile Include="FileOperate\INIFile.cs" />
@@ -106,6 +110,7 @@
     <Compile Include="Other\RegexHelper.cs" />
     <Compile Include="Other\RegisterTool.cs" />
     <Compile Include="Other\TaskSupport.cs" />
+    <Compile Include="Other\Template.cs" />
     <Compile Include="Other\Tools.cs" />
     <Compile Include="Other\Translator.cs" />
     <Compile Include="PE\PEInfo.cs" />
