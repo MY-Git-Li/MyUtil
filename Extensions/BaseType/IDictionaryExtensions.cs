@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MyUtil.Extensions.BaseType
+namespace MyUtil
 {
     public static class IDictionaryExtensions
     {

@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace MyUtil.Extensions.BaseType
+namespace MyUtil
 {
     public static class IStringExtensions
     {
