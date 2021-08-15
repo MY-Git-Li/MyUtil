@@ -96,6 +96,7 @@
     <Compile Include="Memory\ASM.cs" />
     <Compile Include="Memory\CheatTools.cs" />
     <Compile Include="Memory\GameDataAddress.cs" />
+    <Compile Include="Memory\MemoryManager.cs" />
     <Compile Include="Memory\WinAPI\MyProcess.cs" />
     <Compile Include="Memory\WinAPI\WinAPI.cs" />
     <Compile Include="Net\HttpHelper.cs" />
