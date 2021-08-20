@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace MyUtil
+namespace MyUtil.Systems
 {
     /// <summary>
     /// 纳秒级计时器，仅支持Windows系统

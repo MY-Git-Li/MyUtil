@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 
 
-namespace MyUtil.Other
+namespace MyUtil.Strings
 {
     /// <summary>
     /// 模版引擎

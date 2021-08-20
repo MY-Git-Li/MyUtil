@@ -108,12 +108,14 @@
     <Compile Include="Net\Wlan\Wlan.cs" />
     <Compile Include="Other\Email.cs" />
     <Compile Include="Other\EmailAddress.cs" />
-    <Compile Include="Other\HiPerfTimer.cs" />
+    <Compile Include="Strings\NumberFormater.cs" />
+    <Compile Include="Systems\HiPerfTimer.cs" />
     <Compile Include="Other\MySecurity.cs" />
     <Compile Include="Other\RegexHelper.cs" />
     <Compile Include="Other\RegisterTool.cs" />
-    <Compile Include="Other\TaskSupport.cs" />
-    <Compile Include="Other\Template.cs" />
+    <Compile Include="Systems\SnowFlake.cs" />
+    <Compile Include="Systems\TaskSupport.cs" />
+    <Compile Include="Strings\Template.cs" />
     <Compile Include="Other\Tools.cs" />
     <Compile Include="Other\Translator.cs" />
     <Compile Include="PE\PEInfo.cs" />
