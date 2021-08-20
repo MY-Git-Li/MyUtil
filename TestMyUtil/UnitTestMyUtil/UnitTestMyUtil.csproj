@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileOperate\INIFileTest.cs" />
+    <Compile Include="FileOperate\SevenZipCompressorTest.cs" />
     <Compile Include="Net\DownFile\TestDownFile.cs" />
     <Compile Include="Net\Email\TestEmail.cs" />
     <Compile Include="Net\HttpHelperTest.cs" />
