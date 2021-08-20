@@ -58,7 +58,7 @@
   <ItemGroup>
     <Compile Include="Calulation\Calculation.cs" />
     <Compile Include="Calulation\NumberFormater.cs" />
-    <Compile Include="DateTimeExt\DateTimeHelper.cs" />
+    <Compile Include="Extensions\DateTimeExt\DateTimeHelper.cs" />
     <Compile Include="Dll\DllInvokeTool.cs" />
     <Compile Include="Extensions\BaseType\IDictionaryExtensions.cs" />
     <Compile Include="Extensions\BaseType\IEnumExtensions.cs" />
@@ -106,8 +106,8 @@
     <Compile Include="Net\Wlan\WlanTool.cs" />
     <Compile Include="Net\Wlan\WlanClient.cs" />
     <Compile Include="Net\Wlan\Wlan.cs" />
-    <Compile Include="Other\Email.cs" />
-    <Compile Include="Other\EmailAddress.cs" />
+    <Compile Include="Net\Email\Email.cs" />
+    <Compile Include="Net\Email\EmailAddress.cs" />
     <Compile Include="Strings\NumberFormater.cs" />
     <Compile Include="Systems\HiPerfTimer.cs" />
     <Compile Include="Other\MySecurity.cs" />
