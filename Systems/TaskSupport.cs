@@ -1,21 +1,27 @@
-﻿//************************************************************************
-//      author:     yuzhengyang
-//      date:       2018.3.27 - 2018.6.3
-//      desc:       工具描述
-//      Copyright (c) yuzhengyang. All rights reserved.
-//************************************************************************
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MyUtil.Systems
 {
-    public abstract class TaskSupport
+    public class TaskSupport
     {
         private DateTime StartTime, LastRunTime;
+
+        /// <summary>
+        /// 提前干点啥
+        /// </summary>
+        public Action BeforeTODO;
+
+        /// <summary>
+        /// 干点啥
+        /// </summary>
+        public Action TODO;
+
+        /// <summary>
+        /// 完事儿干点啥
+        /// </summary>
+        public Action AfterTODO;
 
         /// <summary>
         /// 通过运行时间判断是否运行
@@ -62,7 +68,7 @@ namespace MyUtil.Systems
         /// <summary>
         /// 启动服务任务
         /// </summary>
-        public virtual void Start()
+        public void Start()
         {
             StartTime = DateTime.Now;
             if (!IsDestroy)
@@ -71,34 +77,20 @@ namespace MyUtil.Systems
                     if (!IsStart)
                     {
                         _IsStart = true;
-                        BeforeTODO();
+                        BeforeTODO?.Invoke();
                         do
                         {
                             LastRunTime = DateTime.Now;
-                            TODO();
+                            TODO?.Invoke(); ;
                             Thread.Sleep(Interval);
 
                         } while (!CT.IsCancellationRequested && Interval > 0);
-                        AfterTODO();
+                        AfterTODO?.Invoke(); ;
                     }
                 });
         }
-        /// <summary>
-        /// 提前干点啥
-        /// </summary>
-        public virtual void BeforeTODO() { }
-        /// <summary>
-        /// 干点啥
-        /// </summary>
-        public abstract void TODO();
-        /// <summary>
-        /// 完事儿干点啥
-        /// </summary>
-        public virtual void AfterTODO() { }
-        /// <summary>
-        /// 停止服务任务
-        /// </summary>
-        public virtual void Stop()
+
+        public void Stop()
         {
             CT.Cancel();
             IsDestroy = true;
