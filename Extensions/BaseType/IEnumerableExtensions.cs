@@ -1,14 +1,14 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MyUtil
 {
-    public static class IListExtensions
+    public static partial class IEnumerableExtensions
     {
         /// <summary>
         /// 按字段去重
@@ -467,4 +467,3 @@ namespace MyUtil
         }
     }
 }
-
