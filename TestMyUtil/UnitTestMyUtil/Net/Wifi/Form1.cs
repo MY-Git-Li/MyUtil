@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-
-namespace MyUtil.Net
+using MyUtil.Net;
+namespace UnitTestMyUtil
 {
     public partial class Form1 : Form
     {
@@ -109,7 +109,7 @@ namespace MyUtil.Net
             if (wn.securityEnabled && !WlanHelper.HasProfile(WlanIface, WlanHelper.GetStringForSSID(wn.dot11Ssid)))
             {
 
-                //这里获得密码.....
+                //获得密码
                 //Form_Password fp = new Form_Password();
                 //if (fp.ShowDialog() == DialogResult.OK)
                 //{

@@ -1,4 +1,4 @@
-﻿namespace MyUtil.Net
+﻿namespace UnitTestMyUtil
 {
     partial class Form1
     {
