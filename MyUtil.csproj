@@ -99,6 +99,8 @@
     <Compile Include="Memory\MemoryManager.cs" />
     <Compile Include="Memory\WinAPI\MyProcess.cs" />
     <Compile Include="Memory\WinAPI\WinAPI.cs" />
+    <Compile Include="Net\DownFile\MultiThreadDownloader.cs" />
+    <Compile Include="Net\DownFile\PartialDownloader.cs" />
     <Compile Include="Net\HttpHelper.cs" />
     <Compile Include="Json\JsonHelper.cs" />
     <Compile Include="Net\Wlan\WlanTool.cs" />
