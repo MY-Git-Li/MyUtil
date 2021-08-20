@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 
-namespace MyUtil.Net.DownFile
+namespace MyUtil.Net
 {
     /// <summary>
     /// 部分下载器

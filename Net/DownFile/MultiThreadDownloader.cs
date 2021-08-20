@@ -8,7 +8,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MyUtil.Net.DownFile
+namespace MyUtil.Net
 {
     /// <summary>
     /// 文件合并改变事件

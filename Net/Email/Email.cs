@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Mail;
 
-namespace MyUtil
+namespace MyUtil.Net
 {
 #pragma warning disable 1591
     public class Email

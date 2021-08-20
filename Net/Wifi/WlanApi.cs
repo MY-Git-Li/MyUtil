@@ -1,22 +1,28 @@
-锘縰sing System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Text;
+using System.Net.NetworkInformation;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Text;
 
 namespace MyUtil.Net
 {
-    public class WlanClient : IDisposable
+    /// <summary>
+    /// Represents a client to the Zeroconf (Native Wifi) service.
+    /// </summary>
+    /// <remarks>
+    /// This class is the entrypoint to Native Wifi management. To manage WiFi settings, create an instance
+    /// of this class.
+    /// </remarks>
+    public class WlanClient
     {
         /// <summary>
         /// Represents a Wifi network interface.
         /// </summary>
         public class WlanInterface
         {
-            private readonly WlanClient client;
+            private WlanClient client;
             private Wlan.WlanInterfaceInfo info;
 
             #region Events
@@ -59,8 +65,8 @@ namespace MyUtil.Net
 
             #region Event queue
             private bool queueEvents;
-            private readonly AutoResetEvent eventQueueFilled = new AutoResetEvent(false);
-            private readonly Queue<object> eventQueue = new Queue<object>();
+            private AutoResetEvent eventQueueFilled = new AutoResetEvent(false);
+            private Queue<object> eventQueue = new Queue<object>();
 
             private struct WlanConnectionNotificationEventData
             {
@@ -193,31 +199,6 @@ namespace MyUtil.Net
             }
 
             /// <summary>
-            /// Gets the radio state.
-            /// </summary>
-            /// <value>The radio state.</value>
-            /// <remarks>Not supported on Windows XP.</remarks>
-            public Wlan.WlanRadioState RadioState
-            {
-                get
-                {
-                    int valueSize;
-                    IntPtr valuePtr;
-                    Wlan.WlanOpcodeValueType opcodeValueType;
-                    Wlan.ThrowIfError(
-                        Wlan.WlanQueryInterface(client.clientHandle, info.interfaceGuid, Wlan.WlanIntfOpcode.RadioState, IntPtr.Zero, out valueSize, out valuePtr, out opcodeValueType));
-                    try
-                    {
-                        return (Wlan.WlanRadioState)Marshal.PtrToStructure(valuePtr, typeof(Wlan.WlanRadioState));
-                    }
-                    finally
-                    {
-                        Wlan.WlanFreeMemory(valuePtr);
-                    }
-                }
-            }
-
-            /// <summary>
             /// Gets the current operation mode.
             /// </summary>
             /// <value>The current operation mode.</value>
@@ -270,9 +251,9 @@ namespace MyUtil.Net
             /// <summary>
             /// Converts a pointer to a available networks list (header + entries) to an array of available network entries.
             /// </summary>
-            /// <param name="availNetListPtr">A pointer to an available networks list's header.</param>
+            /// <param name="bssListPtr">A pointer to an available networks list's header.</param>
             /// <returns>An array of available network entries.</returns>
-            private static Wlan.WlanAvailableNetwork[] ConvertAvailableNetworkListPtr(IntPtr availNetListPtr)
+            private Wlan.WlanAvailableNetwork[] ConvertAvailableNetworkListPtr(IntPtr availNetListPtr)
             {
                 Wlan.WlanAvailableNetworkListHeader availNetListHeader = (Wlan.WlanAvailableNetworkListHeader)Marshal.PtrToStructure(availNetListPtr, typeof(Wlan.WlanAvailableNetworkListHeader));
                 long availNetListIt = availNetListPtr.ToInt64() + Marshal.SizeOf(typeof(Wlan.WlanAvailableNetworkListHeader));
@@ -280,7 +261,6 @@ namespace MyUtil.Net
                 for (int i = 0; i < availNetListHeader.numberOfItems; ++i)
                 {
                     availNets[i] = (Wlan.WlanAvailableNetwork)Marshal.PtrToStructure(new IntPtr(availNetListIt), typeof(Wlan.WlanAvailableNetwork));
-                    availNets[i].profileName = WlanTool.GetStringForSSID(availNets[i].dot11Ssid);
                     availNetListIt += Marshal.SizeOf(typeof(Wlan.WlanAvailableNetwork));
                 }
                 return availNets;
@@ -311,7 +291,7 @@ namespace MyUtil.Net
             /// </summary>
             /// <param name="bssListPtr">A pointer to a BSS list's header.</param>
             /// <returns>An array of BSS entries.</returns>
-            private static Wlan.WlanBssEntry[] ConvertBssListPtr(IntPtr bssListPtr)
+            private Wlan.WlanBssEntry[] ConvertBssListPtr(IntPtr bssListPtr)
             {
                 Wlan.WlanBssListHeader bssListHeader = (Wlan.WlanBssListHeader)Marshal.PtrToStructure(bssListPtr, typeof(Wlan.WlanBssListHeader));
                 long bssListIt = bssListPtr.ToInt64() + Marshal.SizeOf(typeof(Wlan.WlanBssListHeader));
@@ -641,8 +621,9 @@ namespace MyUtil.Net
 
         private IntPtr clientHandle;
         private uint negotiatedVersion;
-        private readonly Wlan.WlanNotificationCallbackDelegate wlanNotificationCallback;
-        private readonly Dictionary<Guid, WlanInterface> ifaces = new Dictionary<Guid, WlanInterface>();
+        private Wlan.WlanNotificationCallbackDelegate wlanNotificationCallback;
+
+        private Dictionary<Guid, WlanInterface> ifaces = new Dictionary<Guid, WlanInterface>();
 
         /// <summary>
         /// Creates a new instance of a Native Wifi service client.
@@ -654,41 +635,23 @@ namespace MyUtil.Net
             try
             {
                 Wlan.WlanNotificationSource prevSrc;
-                wlanNotificationCallback = OnWlanNotification;
+                wlanNotificationCallback = new Wlan.WlanNotificationCallbackDelegate(OnWlanNotification);
                 Wlan.ThrowIfError(
                     Wlan.WlanRegisterNotification(clientHandle, Wlan.WlanNotificationSource.All, false, wlanNotificationCallback, IntPtr.Zero, IntPtr.Zero, out prevSrc));
             }
             catch
             {
-                Close();
+                Wlan.WlanCloseHandle(clientHandle, IntPtr.Zero);
                 throw;
             }
         }
 
-        void IDisposable.Dispose()
-        {
-            GC.SuppressFinalize(this);
-            Close();
-        }
-
         ~WlanClient()
         {
-            Close();
+            Wlan.WlanCloseHandle(clientHandle, IntPtr.Zero);
         }
 
-        /// <summary>
-        /// Closes the handle.
-        /// </summary>
-        private void Close()
-        {
-            if (clientHandle != IntPtr.Zero)
-            {
-                Wlan.WlanCloseHandle(clientHandle, IntPtr.Zero);
-                clientHandle = IntPtr.Zero;
-            }
-        }
-
-        private static Wlan.WlanConnectionNotificationData? ParseWlanConnectionNotification(ref Wlan.WlanNotificationData notifyData)
+        private Wlan.WlanConnectionNotificationData? ParseWlanConnectionNotification(ref Wlan.WlanNotificationData notifyData)
         {
             int expectedSize = Marshal.SizeOf(typeof(Wlan.WlanConnectionNotificationData));
             if (notifyData.dataSize < expectedSize)
@@ -704,14 +667,12 @@ namespace MyUtil.Net
                     Marshal.OffsetOf(typeof(Wlan.WlanConnectionNotificationData), "profileXml").ToInt64());
                 connNotifyData.profileXml = Marshal.PtrToStringUni(profileXmlPtr);
             }
-
             return connNotifyData;
         }
 
         private void OnWlanNotification(ref Wlan.WlanNotificationData notifyData, IntPtr context)
         {
-            WlanInterface wlanIface;
-            ifaces.TryGetValue(notifyData.interfaceGuid, out wlanIface);
+            WlanInterface wlanIface = ifaces.ContainsKey(notifyData.interfaceGuid) ? ifaces[notifyData.interfaceGuid] : null;
 
             switch (notifyData.notificationSource)
             {
@@ -730,12 +691,19 @@ namespace MyUtil.Net
                             break;
                         case Wlan.WlanNotificationCodeAcm.ScanFail:
                             {
-                                int expectedSize = Marshal.SizeOf(typeof(int));
-                                if (notifyData.dataSize >= expectedSize)
+                                try
                                 {
-                                    Wlan.WlanReasonCode reasonCode = (Wlan.WlanReasonCode)Marshal.ReadInt32(notifyData.dataPtr);
-                                    if (wlanIface != null)
-                                        wlanIface.OnWlanReason(notifyData, reasonCode);
+                                    //这里有时候会报错，只能抓错无视了
+                                    int expectedSize = Marshal.SizeOf((typeof(Wlan.WlanReasonCode)));
+                                    if (notifyData.dataSize >= expectedSize)
+                                    {
+                                        Wlan.WlanReasonCode reasonCode = (Wlan.WlanReasonCode)Marshal.ReadInt32(notifyData.dataPtr);
+                                        if (wlanIface != null)
+                                            wlanIface.OnWlanReason(notifyData, reasonCode);
+                                    }
+                                }
+                                catch
+                                {
                                 }
                             }
                             break;
@@ -791,16 +759,14 @@ namespace MyUtil.Net
                         Wlan.WlanInterfaceInfo info =
                             (Wlan.WlanInterfaceInfo)Marshal.PtrToStructure(new IntPtr(listIterator), typeof(Wlan.WlanInterfaceInfo));
                         listIterator += Marshal.SizeOf(info);
-                        currentIfaceGuids.Add(info.interfaceGuid);
-
                         WlanInterface wlanIface;
-                        if (!ifaces.TryGetValue(info.interfaceGuid, out wlanIface))
-                        {
+                        currentIfaceGuids.Add(info.interfaceGuid);
+                        if (ifaces.ContainsKey(info.interfaceGuid))
+                            wlanIface = ifaces[info.interfaceGuid];
+                        else
                             wlanIface = new WlanInterface(this, info);
-                            ifaces[info.interfaceGuid] = wlanIface;
-                        }
-
                         interfaces[i] = wlanIface;
+                        ifaces[info.interfaceGuid] = wlanIface;
                     }
 
                     // Remove stale interfaces
