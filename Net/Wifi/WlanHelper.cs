@@ -134,7 +134,7 @@ namespace MyUtil.Net
         /// <returns></returns>
         public static string GetStringForSSID(Wlan.Dot11Ssid ssid)
         {
-            return Encoding.ASCII.GetString(ssid.SSID, 0, (int)ssid.SSIDLength);
+            return Encoding.UTF8.GetString(ssid.SSID, 0, (int)ssid.SSIDLength);
         }
         /// <summary>  
         /// 字符串转Hex  
