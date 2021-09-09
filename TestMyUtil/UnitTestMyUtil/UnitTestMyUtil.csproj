@@ -56,6 +56,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Calulation\NumToFractionerTest.cs" />
     <Compile Include="FileOperate\INIFileTest.cs" />
     <Compile Include="FileOperate\SevenZipCompressorTest.cs" />
     <Compile Include="Net\DownFile\TestDownFile.cs" />

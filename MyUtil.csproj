@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Calulation\BigNum.cs" />
     <Compile Include="Calulation\Calculation.cs" />
     <Compile Include="Calulation\NumberFormater.cs" />
     <Compile Include="Extensions\BaseType\IConvertibleExtensions.cs" />
