@@ -108,6 +108,11 @@
     <Compile Include="Hardware\Method_2\SoftwareInfo.cs" />
     <Compile Include="Hardware\Method_2\SoftwareTool.cs" />
     <Compile Include="HotKey\HotSystem.cs" />
+    <Compile Include="Images\FastImage.cs" />
+    <Compile Include="Images\IntegralImage.cs" />
+    <Compile Include="Images\OccupancyMap.cs" />
+    <Compile Include="Images\Util.cs" />
+    <Compile Include="Images\WordCloud.cs" />
     <Compile Include="Logging\LogInfo.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="Logging\LogManager.cs" />
