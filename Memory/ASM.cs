@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MyUtil.Memory
 {
-    public class ASM
+    class ASM
     {
         #region API相关
         [DllImport("kernel32.dll", EntryPoint = "CloseHandle")]
@@ -1451,11 +1451,11 @@ namespace MyUtil.Memory
 
         /* public void Mov_ECX_EAX()
 
-            {
+         {
 
-                this.Asmcode = this.Asmcode + "8BC8";
+             this.Asmcode = this.Asmcode + "8BC8";
 
-            }*/
+         }*/
 
         public void Mov_ECX_EBX()
 
@@ -2725,19 +2725,88 @@ namespace MyUtil.Memory
 
         #endregion
 
+
+        public enum RegisterType
+        {
+            EAX = 0,
+            EBX,
+            ECX,
+            EDX,
+            EBP,
+            ESP,
+            ESI,
+            EDI,
+
+        }
+
+        public Dictionary<RegisterType, int> HookAllRegister(int pid, int hookAddress, int retnAddress)
+        {
+            int hwnd, artificialPoint;
+            byte[] Asm = this.AsmChangebytes(this.Asmcode);
+
+            Dictionary<RegisterType, int> keyValuePairs = new Dictionary<RegisterType, int>();
+
+            if (pid != 0)
+            {
+
+                hwnd = OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD | PROCESS_VM_WRITE, 0, pid);
+
+                if (hwnd != 0)
+                {
+                    artificialPoint = VirtualAllocEx(hwnd, 0, 128, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+
+                    for (int i = 0; i < 8; i++)
+                    {
+                        keyValuePairs[RegisterType.EAX + i] = artificialPoint + i * 16;
+                    }
+
+                    this.Pushad();
+                    this.Mov_DWORD_Ptr_EAX(keyValuePairs[RegisterType.EAX]);
+
+                    this.Mov_EAX_EBX();
+                    this.Mov_DWORD_Ptr_EAX(keyValuePairs[RegisterType.EBX]);
+
+                    this.Mov_EAX_ECX();
+                    this.Mov_DWORD_Ptr_EAX(keyValuePairs[RegisterType.ECX]);
+
+                    this.Mov_EAX_EDX();
+                    this.Mov_DWORD_Ptr_EAX(keyValuePairs[RegisterType.EDX]);
+
+                    this.Mov_EAX_EBP();
+                    this.Mov_DWORD_Ptr_EAX(keyValuePairs[RegisterType.EBP]);
+
+                    this.Mov_EAX_ESP();
+                    this.Mov_DWORD_Ptr_EAX(keyValuePairs[RegisterType.ESP]);
+
+                    this.Mov_EAX_ESI();
+                    this.Mov_DWORD_Ptr_EAX(keyValuePairs[RegisterType.ESI]);
+
+                    this.Mov_EAX_EDI();
+                    this.Mov_DWORD_Ptr_EAX(keyValuePairs[RegisterType.EDI]);
+
+                    this.Popad();
+
+                    this.RunJmpHook(pid, hookAddress, retnAddress);
+                }
+            }
+            this.Asmcode = "";
+            return keyValuePairs;
+
+        }
+
+
         public void RunJmpHook(int pid, int hookAddress, int retnAddress)
         {
             int hwnd, addre;
             byte[] Asm = this.AsmChangebytes(this.Asmcode);
 
             if (pid != 0)
-
             {
 
                 hwnd = OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD | PROCESS_VM_WRITE, 0, pid);
 
                 if (hwnd != 0)
-
                 {
 
                     addre = VirtualAllocEx(hwnd, 0, Asm.Length, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
@@ -2771,13 +2840,11 @@ namespace MyUtil.Memory
             byte[] Asm = this.AsmChangebytes(this.Asmcode);
 
             if (pid != 0)
-
             {
 
                 hwnd = OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD | PROCESS_VM_WRITE, 0, pid);
 
                 if (hwnd != 0)
-
                 {
 
                     addre = VirtualAllocEx(hwnd, 0, Asm.Length, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
@@ -2799,6 +2866,7 @@ namespace MyUtil.Memory
             this.Asmcode = "";
 
         }
+
 
         private byte[] AsmChangebytes(string asmPram)
 
