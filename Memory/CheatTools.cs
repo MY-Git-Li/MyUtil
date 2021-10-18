@@ -34,6 +34,158 @@ namespace MyUtil.Memory
 
         #region 内存相关方法
 
+        #region 泛型读写
+
+        [DllImport("kernel32.dll")]
+        public static extern bool ReadProcessMemory(IntPtr hProcess, int lpBaseAddress, [In, Out] byte[] lpBuffer, int nsize, out IntPtr lpNumberOfBytesRead);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool WriteProcessMemory(IntPtr hProcess, int lpBaseAddress, [In, Out] byte[] lpBuffer, int nsize, out IntPtr lpNumberOfBytesWritten);
+
+        private static T ByteArrayToStructure<T>(byte[] bytes) where T : struct
+        {
+            var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+            try
+            {
+                return (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+            }
+            finally
+            {
+                handle.Free();
+            }
+        }
+
+        private static byte[] StructureToByteArray(object obj)
+        {
+            int length = Marshal.SizeOf(obj);
+            byte[] array = new byte[length];
+            IntPtr pointer = Marshal.AllocHGlobal(length);
+            Marshal.StructureToPtr(obj, pointer, true);
+            Marshal.Copy(pointer, array, 0, length);
+            Marshal.FreeHGlobal(pointer);
+            return array;
+        }
+
+        public static T ReadMemoryPoninter<T>(IntPtr m_pProcessHandle, int[] address) where T : struct
+        {
+
+            byte[] buffer = new byte[Marshal.SizeOf(typeof(T))];
+
+            for (int i = 0; i < address.Length; i++)
+            {
+                if (i != address.Length - 1)
+                {
+                    ReadProcessMemory(m_pProcessHandle, (ByteArrayToStructure<int>(buffer) + address[i]), buffer, buffer.Length, out _);
+
+                    int ret = ByteArrayToStructure<int>(buffer);
+
+
+                    if (ret == 0)
+                        return ByteArrayToStructure<T>(new byte[] { 0 });
+                }
+                else
+                {
+                    ReadProcessMemory(m_pProcessHandle, (ByteArrayToStructure<int>(buffer) + address[i]), buffer, buffer.Length, out _);
+
+                    return ByteArrayToStructure<T>(buffer);
+                }
+
+            }
+            return ByteArrayToStructure<T>(buffer);
+        }
+
+        public static void WriteMemoryPoninter<T>(IntPtr m_pProcessHandle, int[] address, T vaule) where T : struct
+        {
+
+            byte[] buffer = new byte[Marshal.SizeOf(typeof(T))];
+
+            for (int i = 0; i < address.Length; i++)
+            {
+                if (i != address.Length - 1)
+                {
+                    ReadProcessMemory(m_pProcessHandle, (ByteArrayToStructure<int>(buffer) + address[i]), buffer, buffer.Length, out _);
+
+                    int ret = ByteArrayToStructure<int>(buffer);
+
+
+                    if (ret == 0)
+                        break;
+                }
+                else
+                {
+                    var dd = StructureToByteArray(vaule);
+
+                    WriteProcessMemory(m_pProcessHandle, (ByteArrayToStructure<int>(buffer) + address[i]), dd, dd.Length, out _);
+
+                }
+
+            }
+
+        }
+
+        public static T ReadMemory<T>(IntPtr m_pProcessHandle, int address) where T : struct
+        {
+            byte[] buffer = new byte[Marshal.SizeOf(typeof(T))];
+            ReadProcessMemory(m_pProcessHandle, address, buffer, buffer.Length, out _);
+            return ByteArrayToStructure<T>(buffer);
+        }
+
+        public static void WriteMemory<T>(IntPtr m_pProcessHandle, int address, object Value) where T : struct
+        {
+            byte[] buffer = StructureToByteArray(Value);
+            WriteProcessMemory(m_pProcessHandle, address, buffer, buffer.Length, out _);
+        }
+
+        public static void WriteMemory<T>(IntPtr m_pProcessHandle, int address, byte[] Value) where T : struct
+        {
+            //byte[] buffer = StructureToByteArray(Value);
+            WriteProcessMemory(m_pProcessHandle, address, Value, Value.Length, out _);
+        }
+
+
+        #endregion
+
+        #region 字符串读写
+
+        public string ReadStringASCII(IntPtr m_pProcessHandle, int address, int size)
+        {
+            byte[] buffer = new byte[size];
+            ReadProcessMemory(m_pProcessHandle, address, buffer, size, out _);
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (buffer[i] == 0)
+                {
+                    byte[] _buffer = new byte[i];
+                    Buffer.BlockCopy(buffer, 0, _buffer, 0, i);
+                    return Encoding.ASCII.GetString(_buffer);
+                }
+            }
+
+            return Encoding.ASCII.GetString(buffer);
+        }
+
+        public string ReadStringUnicode(IntPtr m_pProcessHandle, int address, int size)
+        {
+            byte[] buffer = new byte[size];
+            ReadProcessMemory(m_pProcessHandle, address, buffer, size, out _);
+
+            for (int i = 0; i < buffer.Length; i++)
+            {
+                if (buffer[i] == 0)
+                {
+                    byte[] _buffer = new byte[i];
+                    Buffer.BlockCopy(buffer, 0, _buffer, 0, i);
+                    return Encoding.Unicode.GetString(_buffer);
+                }
+            }
+
+            return Encoding.Unicode.GetString(buffer);
+        }
+
+        #endregion
+
+        #region 指定读写
         //读内存模块  
         public static IntPtr ReadModule(string ModuleName)
         {
@@ -191,8 +343,8 @@ namespace MyUtil.Memory
             }
         }
 
-        //字节数组变为浮点数值
-        private static float ByteToFloat(byte[] data)
+        //字节数组变为浮点数值
+        private static float ByteToFloat(byte[] data)
         {
             return BitConverter.ToSingle(data, 0);
         }
@@ -221,6 +373,7 @@ namespace MyUtil.Memory
 
             return address;
         }
+
         public static uint MyGetProcessModuleHandle(uint pid, string moduleName)
         {
             //获取该系统下所有进程
@@ -240,6 +393,8 @@ namespace MyUtil.Memory
             }
             return 0;
         }
+
+        #endregion
 
         #endregion
 
