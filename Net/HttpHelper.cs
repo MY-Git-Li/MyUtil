@@ -107,8 +107,8 @@ namespace MyUtil.Net
         /// <param name="action">处理HttpResult类型的函数（委托）</param>
         public async void GetHtmlAsync(HttpItem httpItem, Action<HttpResult> action)
         {
-            HttpHelper http = new HttpHelper();
-            var ret = await Dowork(http, httpItem);
+           
+            var ret = await Dowork(httpItem);
 
             action?.Invoke(ret);
 
@@ -119,8 +119,10 @@ namespace MyUtil.Net
         /// </summary>
         /// <param name="httpItem"></param>
         /// <returns></returns>
-        async Task<HttpResult> Dowork(HttpHelper http, HttpItem httpItem)
+        async Task<HttpResult> Dowork(HttpItem httpItem)
         {
+            HttpHelper http = new HttpHelper();
+
             return await Task.Run(() =>
             {
                 return http.GetHtml(httpItem);
