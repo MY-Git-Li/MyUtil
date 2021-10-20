@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using System.Net.Security;
 using System.Linq;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace MyUtil.Net
 {
@@ -97,6 +98,38 @@ namespace MyUtil.Net
             }
             return result;
         }
+
+
+        /// <summary>
+        /// 异步得到相应页面数据
+        /// </summary>
+        /// <param name="httpItem">参数类对象</param>
+        /// <param name="action">处理HttpResult类型的函数（委托）</param>
+        public async void GetHtmlAsync(HttpItem httpItem, Action<HttpResult> action)
+        {
+            HttpHelper http = new HttpHelper();
+            var ret = await Dowork(http, httpItem);
+
+            action?.Invoke(ret);
+
+        }
+
+        /// <summary>
+        /// 异步工作
+        /// </summary>
+        /// <param name="httpItem"></param>
+        /// <returns></returns>
+        async Task<HttpResult> Dowork(HttpHelper http, HttpItem httpItem)
+        {
+            return await Task.Run(() =>
+            {
+                return http.GetHtml(httpItem);
+            });
+
+        }
+
+
+
         #endregion
 
         #region GetData
