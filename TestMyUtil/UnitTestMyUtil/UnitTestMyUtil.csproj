@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Calulation\NumToFractionerTest.cs" />
+    <Compile Include="Extensions\BaseType\IStringExtensionsTest.cs" />
     <Compile Include="FileOperate\INIFileTest.cs" />
     <Compile Include="FileOperate\SevenZipCompressorTest.cs" />
     <Compile Include="Images\FormMain.cs">
