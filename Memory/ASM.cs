@@ -2860,7 +2860,7 @@ namespace MyUtil.Memory
                 if (hwnd != 0)
                 {
 
-                    addre = VirtualAllocEx(hwnd, 0, Asm.Length, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+                    addre = VirtualAllocEx(hwnd, 0, Asm.Length + 64, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
                     if (others != null)
                     {
