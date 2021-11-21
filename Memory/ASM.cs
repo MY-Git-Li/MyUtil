@@ -2733,6 +2733,15 @@ namespace MyUtil.Memory
 
         #endregion
 
+        #region Hook相关
+        struct Hook
+        {
+            public int address;
+            public byte[] oldAsm;
+        }
+
+        Hook jmpHook;
+        Hook registerHook;
 
         public enum RegisterType
         {
@@ -2754,6 +2763,7 @@ namespace MyUtil.Memory
             int oldAsmLeng = retnAddress - hookAddress;
             byte[] oldAsm = new byte[oldAsmLeng];
 
+            GetOldData(out registerHook, pid, hookAddress, oldAsmLeng);
 
             Dictionary<RegisterType, int> keyValuePairs = new Dictionary<RegisterType, int>();
 
@@ -2767,6 +2777,7 @@ namespace MyUtil.Memory
                     artificialPoint = VirtualAllocEx(hwnd, 0, 128, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
                     ReadProcessMemory(hwnd, hookAddress, oldAsm, oldAsmLeng, 0);
+
 
                     for (int i = 0; i < 8; i++)
                     {
@@ -2817,38 +2828,16 @@ namespace MyUtil.Memory
 
         }
 
-        public void RunJmpHook(int pid, int hookAddress, int retnAddress)
+        public void JmpHook(int pid, int hookAddress, int retnAddress)
         {
-            int hwnd, addre;
-            byte[] Asm = this.AsmChangebytes(this.Asmcode);
 
-            if (pid != 0)
-            {
+            int oldAsmLeng = retnAddress - hookAddress;
 
-                hwnd = OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD | PROCESS_VM_WRITE, 0, pid);
-
-                if (hwnd != 0)
-                {
-
-                    addre = VirtualAllocEx(hwnd, 0, Asm.Length, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-                    //RET
-                    string ofsetaddress = intTohex(retnAddress - (addre + Asm.Length + 5), 8);
-                    this.Asmcode += "e9";
-                    this.Asmcode += ofsetaddress;
-                    Asm = this.AsmChangebytes(this.Asmcode);
-                    WriteProcessMemory(hwnd, addre, Asm, Asm.Length, 0);
-
-                    //JMP
-                    ofsetaddress = intTohex(addre - (hookAddress + 5), 8);
-                    byte[] code = AsmChangebytes("e9" + ofsetaddress);
-                    WriteProcessMemory(hwnd, hookAddress, code, code.Length, 0);
+            GetOldData(out jmpHook, pid, hookAddress, oldAsmLeng);
 
 
-                    CloseHandle(hwnd);
+            RunJmpHook(pid, hookAddress, retnAddress, jmpHook.oldAsm);
 
-                }
-
-            }
             this.Asmcode = "";
         }
 
@@ -2857,6 +2846,12 @@ namespace MyUtil.Memory
             int hwnd, addre;
             byte[] Asm = this.AsmChangebytes(this.Asmcode);
 
+            int otherlen = 0;
+            if (others != null)
+            {
+                otherlen = others.Length;
+            }
+
             if (pid != 0)
             {
 
@@ -2867,14 +2862,17 @@ namespace MyUtil.Memory
 
                     addre = VirtualAllocEx(hwnd, 0, Asm.Length, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
-                    WriteProcessMemory(hwnd, addre, others, others.Length, 0);
+                    if (others != null)
+                    {
+                        WriteProcessMemory(hwnd, addre, others, otherlen, 0);
+                    }
 
                     //RET
-                    string ofsetaddress = intTohex(retnAddress - (addre + Asm.Length + 5 + others.Length), 8);
+                    string ofsetaddress = intTohex(retnAddress - (addre + Asm.Length + 5 + otherlen), 8);
                     this.Asmcode += "e9";
                     this.Asmcode += ofsetaddress;
                     Asm = this.AsmChangebytes(this.Asmcode);
-                    WriteProcessMemory(hwnd, addre + others.Length, Asm, Asm.Length, 0);
+                    WriteProcessMemory(hwnd, addre + otherlen, Asm, Asm.Length, 0);
 
                     //JMP
                     ofsetaddress = intTohex(addre - (hookAddress + 5), 8);
@@ -2890,6 +2888,42 @@ namespace MyUtil.Memory
             this.Asmcode = "";
         }
 
+        public void RecoveryJmpHook(int pid)
+        {
+            var hwnd = OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD | PROCESS_VM_WRITE, 0, pid);
+
+            if (hwnd != 0)
+            {
+                WriteProcessMemory(hwnd, jmpHook.address, jmpHook.oldAsm, jmpHook.oldAsm.Length, 0);
+            }
+        }
+
+        public void RecoveryRegisterHook(int pid)
+        {
+            var hwnd = OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD | PROCESS_VM_WRITE, 0, pid);
+
+            if (hwnd != 0)
+            {
+                WriteProcessMemory(hwnd, registerHook.address, registerHook.oldAsm, registerHook.oldAsm.Length, 0);
+            }
+        }
+
+        void GetOldData(out Hook hookOld, int pid, int address, int len)
+        {
+            byte[] oldAsm = new byte[len];
+            var hwnd = OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD | PROCESS_VM_WRITE, 0, pid);
+            if (hwnd != 0)
+            {
+                ReadProcessMemory(hwnd, address, oldAsm, len, 0);
+
+            }
+
+
+            hookOld.address = address;
+            hookOld.oldAsm = oldAsm;
+        }
+
+        #endregion
 
         public void RunAsm(int pid, bool save = false)
         {
@@ -2927,8 +2961,6 @@ namespace MyUtil.Memory
             }
 
         }
-
-
         private byte[] AsmChangebytes(string asmPram)
 
         {
