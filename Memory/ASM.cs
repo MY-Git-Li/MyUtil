@@ -13,6 +13,14 @@ namespace MyUtil.Memory
         public static extern int CloseHandle(int hObject);
 
         [DllImport("kernel32.dll")]
+        public static extern bool ReadProcessMemory(
+            int hProcess,
+            int lpBaseAddress,
+            byte[] lpBuffer,
+            int nsize,
+            int lpNumberOfBytesRead);
+
+        [DllImport("kernel32.dll")]
 
         public static extern Int32 WriteProcessMemory(
 
@@ -2739,10 +2747,13 @@ namespace MyUtil.Memory
 
         }
 
-        public Dictionary<RegisterType, int> HookAllRegister(int pid, int hookAddress, int retnAddress)
+        public Dictionary<RegisterType, int> HookAllRegisterEx(int pid, int hookAddress, int retnAddress)
         {
             int hwnd, artificialPoint;
-            byte[] Asm = this.AsmChangebytes(this.Asmcode);
+
+            int oldAsmLeng = retnAddress - hookAddress;
+            byte[] oldAsm = new byte[oldAsmLeng];
+
 
             Dictionary<RegisterType, int> keyValuePairs = new Dictionary<RegisterType, int>();
 
@@ -2755,6 +2766,7 @@ namespace MyUtil.Memory
                 {
                     artificialPoint = VirtualAllocEx(hwnd, 0, 128, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
+                    ReadProcessMemory(hwnd, hookAddress, oldAsm, oldAsmLeng, 0);
 
                     for (int i = 0; i < 8; i++)
                     {
@@ -2787,7 +2799,7 @@ namespace MyUtil.Memory
 
                     this.Popad();
 
-                    this.RunJmpHook(pid, hookAddress, retnAddress);
+                    this.RunJmpHook(pid, hookAddress, retnAddress, oldAsm);
                 }
             }
             this.Asmcode = "";
@@ -2795,6 +2807,15 @@ namespace MyUtil.Memory
 
         }
 
+        public Dictionary<RegisterType, int> HookAllRegister(int pid, int hookAddress, int retnAddress)
+        {
+            //byte[] Asm = this.AsmChangebytes(this.Asmcode);
+
+            this.Asmcode = "";
+
+            return HookAllRegisterEx(pid, hookAddress, retnAddress);
+
+        }
 
         public void RunJmpHook(int pid, int hookAddress, int retnAddress)
         {
@@ -2831,8 +2852,46 @@ namespace MyUtil.Memory
             this.Asmcode = "";
         }
 
-        public void RunAsm(int pid)
+        public void RunJmpHook(int pid, int hookAddress, int retnAddress, byte[] others)
+        {
+            int hwnd, addre;
+            byte[] Asm = this.AsmChangebytes(this.Asmcode);
 
+            if (pid != 0)
+            {
+
+                hwnd = OpenProcess(PROCESS_ALL_ACCESS | PROCESS_CREATE_THREAD | PROCESS_VM_WRITE, 0, pid);
+
+                if (hwnd != 0)
+                {
+
+                    addre = VirtualAllocEx(hwnd, 0, Asm.Length, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+
+                    WriteProcessMemory(hwnd, addre, others, others.Length, 0);
+
+                    //RET
+                    string ofsetaddress = intTohex(retnAddress - (addre + Asm.Length + 5 + others.Length), 8);
+                    this.Asmcode += "e9";
+                    this.Asmcode += ofsetaddress;
+                    Asm = this.AsmChangebytes(this.Asmcode);
+                    WriteProcessMemory(hwnd, addre + others.Length, Asm, Asm.Length, 0);
+
+                    //JMP
+                    ofsetaddress = intTohex(addre - (hookAddress + 5), 8);
+                    byte[] code = AsmChangebytes("e9" + ofsetaddress);
+                    WriteProcessMemory(hwnd, hookAddress, code, code.Length, 0);
+
+
+                    CloseHandle(hwnd);
+
+                }
+
+            }
+            this.Asmcode = "";
+        }
+
+
+        public void RunAsm(int pid, bool save = false)
         {
 
             int hwnd, addre, threadhwnd;
@@ -2862,8 +2921,10 @@ namespace MyUtil.Memory
                 }
 
             }
-
-            this.Asmcode = "";
+            if (!save)
+            {
+                this.Asmcode = "";
+            }
 
         }
 
